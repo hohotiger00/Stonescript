@@ -347,7 +347,7 @@ func Mine()
     return
   
   // Boss
-  ?foe = boss | hasEncountedBoss
+  ?foe = bronze_guardian | hasEncountedBoss
     hasEncountedBoss = true
     MineBoss()
     return
@@ -398,7 +398,6 @@ func MineBoss()
         TryBardicheAbility()
     :
       TryDashInRange()
-  //Default Range attack
   :
     SetEquip("aether crossbow")
 
@@ -423,6 +422,9 @@ func Caves()
 
   // General
   ?TryBladeAbility()
+    return
+
+  ?TryQtfDash()
     return
 
   ?FoeWithin(16)
@@ -625,7 +627,7 @@ func Icy()
   PickupWhenClose()
 
   // Boss
-  ?foe = boss | hasEncountedBoss
+  ?foe = hrimnir | hasEncountedBoss
     hasEncountedBoss = true
     IceBoss()
     return
