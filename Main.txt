@@ -421,9 +421,6 @@ func Caves()
     CavesBoss()
     return
 
-  ?TrySkeletonArmAbility()
-    return
-
   // General
   ?TryBladeAbility()
     return
@@ -431,16 +428,15 @@ func Caves()
   ?FoeWithin(16)
     ?smiteStack ! 0 & foe.distance > 11
       EquipSet(chillWands)
-    :
-      ?TryDashInRange()
-        return
-      SetEquip("bardiche")
+      return
+    :?TryDashInRange()
+      return
+    SetEquip("bardiche")
 
 func CavesMiniBoss()
   ?TryDashInRange()
     return
 
-  // MoondialSet(chillSwords)
   //EquipSet(stunlock)
   SetEquip("bardiche")
 
@@ -646,13 +642,11 @@ func Icy()
     return
 
   ?FoeWithin(16)
-    // Unmake pillar
     ?(foe = ice_pillar | foe = ice_wall) 
       ?TryDashInRange()
         return
 
       EquipSet(unmakeSwords)
-      // MoondialSet(fireSwords)
       return
     SetEquip("fire crossbow")
 
@@ -708,7 +702,7 @@ func Mushroom()
   PickupWhenClose()
 
   // Boss
-  ?foe = boss| hasEncountedBoss
+  ?foe = boss | hasEncountedBoss
     hasEncountedBoss = true
     MushroomBoss()
     return
@@ -727,6 +721,10 @@ func Mushroom()
     SetEquip("bardiche")
 
 func MushroomBoss() 
+  // Wait for boss engaging
+  ?foe.state < 1 | ai.paused
+    return
+
   ?foe = mushroom_boss_fat 
     ?TryMaskAbility()
       return
@@ -742,9 +740,52 @@ func MushroomBoss()
     TryHammerAbility()
     return
   :
-    // EquipChillSwordsOr(poisonSwords)
-    SetEquip("bardiche")
-    TryBardicheAbility()
+    SetEquip("poison crossbow")
+    // SetEquip("bardiche")
+    // TryBardicheAbility()
+
+// ===================
+// Temple 
+// ===================
+func Temple()
+  toSummon = "voidweaver"
+
+  SetDefaultLoadout(["triskelion","compound shield"])
+  PickupWhenClose()
+
+  // Boss
+  ?foe = nagaraja | hasEncountedBoss
+    hasEncountedBoss = true
+    TempleBoss()
+    return
+
+  // General
+  ?TryBladeAbility()
+    return
+
+  ?TryQtfDash()
+    return
+
+  ?FoeWithin(16)
+    ?smiteStack ! 0 & foe.distance > 11
+      EquipSet(chillWands)
+      return
+    :?TryDashInRange()
+      return
+    :
+      SetEquip("bardiche")
+
+func TempleBoss()
+  ?foe.state ! 112 & InDashRange()
+    TryDashInRange()
+    return
+
+  // Dodge Brick
+  ?foe.state = 112 & foe.time = 45
+    TryStepback()
+    return
+
+  SetEquip("bardiche")
 
 // ==========================
 // Main Function
@@ -772,11 +813,12 @@ func Main()
     Icy()
   :?loc = Mushroom
     Mushroom()
+  :?loc = Temple
+    Temple()
 
   __SummonTheGuy()
   __EquipItems()
   __ActivateItems()
-  // __ManageGP()
   __HUD()
 
 Main()
